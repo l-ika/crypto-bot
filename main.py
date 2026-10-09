@@ -24,4 +24,19 @@ def send_welcome(message):
         markup.add(item_button)
     bot.send_message(message.chat.id, 'Привет🖐😃 Выбери криптовалюту', reply_markup=markup)
 
+@bot.message_handler(func=lambda message: message.text in CRYPTO_NAME.keys())
+def send_price(message):
+    crypto_name = message.text
+    ticker = CRYPTO_NAME[crypto_name]
+    price = get_price_by_ticker(ticker)
+    bot.send_message(message.chat.id, f'Курс {crypto_name} к USDT составляет {price}')
+
+def get_price_by_ticker(ticker):
+    url = 'https://api.binance.com/api/v3/ticker/price'
+    responce = requests.get(url, params={
+        'symbol': ticker
+    })
+    data = responce.json()
+    return round(float(data['price']), 2)
+
 bot.infinity_polling()
